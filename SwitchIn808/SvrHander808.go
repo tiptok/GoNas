@@ -49,16 +49,16 @@ func (trans *SvrHander808) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 		for i:=0;i<len(packdata);i++{
 			log.Printf("%v On Receive Part Data : %v", c.RemoteAddress, hex.EncodeToString(packdata[i]))
 			obj, err1 := c.P.Parse(packdata[i])
-		if err1 != nil {
-			log.Panicln(err1.Error())
-		}
-		if def, ok := obj.(conn.DefaultTcpData); ok {
-			log.Printf("收到MsgTypeId：%v  Begin: %v  End: %v", def.MsgTypeId, def.BEGIN, def.END)
-			/*添加上行*/
-			global.UpHandler.UpData(def)
-		} else {
-			log.Println("Convert To Type Error.")
-		}
+			if err1 != nil {
+				log.Panicln(err1.Error())
+			}
+			if def, ok := obj.(conn.DefaultTcpData); ok {
+				log.Printf("收到MsgTypeId：%v  Begin: %v  End: %v", def.MsgTypeId, def.BEGIN, def.END)
+				/*添加上行*/
+				global.UpHandler.UpData(def)
+			} else {
+				log.Println("Convert To Type Error.")
+			}
 		}
 	}
 	/*解析出实体*/
