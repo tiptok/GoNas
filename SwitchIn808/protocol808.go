@@ -37,7 +37,7 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 	}
 	ibegin := -1
 	iEnd := -1
-	packdata = make([][]byte,1)
+	packdata = make([][]byte, 1)
 	for i := 0; i < len(data); i++ {
 		log.Printf("Index:%x  %x %t", i, data[i], data[i] == 0x7e)
 		if data[i] == 0x7e {
@@ -49,21 +49,21 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 		}
 		if ibegin >= 0 && iEnd > 0 {
 			/*添加到data list */
-			append(packdata,data[ibegin:iEnd])
+			append(packdata, data[ibegin:iEnd])
 			/*重置下标*/
-			ibegin,iEnd =-1,-1
+			ibegin, iEnd = -1, -1
 			/*退出分包 将剩余bytes写到leftbuffer 里面*/
-			if i>=len(data){
-			if iEnd < len(data) {
-				leftdata = data[iEnd:]
-				_, err := c.WriteLeftData(leftdata)
-				if err != nil {
-					log.Println(err.Error())
+			if i >= len(data) {
+				if iEnd < len(data) {
+					leftdata = data[iEnd:]
+					_, err := c.WriteLeftData(leftdata)
+					if err != nil {
+						log.Println(err.Error())
+					}
 				}
+				break
 			}
-			break
 		}
-	}
 	}
 	/*未找到头标识 说明报文是非法数据*/
 	if ibegin < 0 {
