@@ -26,7 +26,8 @@ func (p protocol808) Packet(obj interface{}) (packdata []byte, err error) {
 	leftdata 解析剩余报文的数据
 	err 	 分包错误
 */
-func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata []byte, leftdata []byte, err error) {
+func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte, leftdata []byte, err error) {
+
 	defer func() {
 		conn.MyRecover()
 	}()
@@ -36,6 +37,7 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata []byte, 
 	}
 	ibegin := -1
 	iEnd := -1
+	packdata = make([][]byte,1)
 	for i := 0; i < len(data); i++ {
 		log.Printf("Index:%x  %x %t", i, data[i], data[i] == 0x7e)
 		if data[i] == 0x7e {
@@ -46,7 +48,12 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata []byte, 
 			log.Printf("Begin:%x End:%x", ibegin, iEnd)
 		}
 		if ibegin >= 0 && iEnd > 0 {
-			packdata = data[ibegin:iEnd]
+			/*添加到data list */
+			append(packdata,data[ibegin:iEnd])
+			/*重置下标*/
+			ibegin,iEnd =-1,-1
+			/*退出分包 将剩余bytes写到leftbuffer 里面*/
+			if i>=len(data){
 			if iEnd < len(data) {
 				leftdata = data[iEnd:]
 				_, err := c.WriteLeftData(leftdata)
@@ -56,6 +63,7 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata []byte, 
 			}
 			break
 		}
+	}
 	}
 	/*未找到头标识 说明报文是非法数据*/
 	if ibegin < 0 {
