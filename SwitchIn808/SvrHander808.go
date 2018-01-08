@@ -46,8 +46,9 @@ func (trans *SvrHander808) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 	}
 	/*解析完整包*/
 	if packdata != nil {
-		log.Printf("%v On Receive Part Data : %v", c.RemoteAddress, hex.EncodeToString(packdata))
-		obj, err1 := c.P.Parse(packdata)
+		for i:=0;i<len(packdata);i++{
+			log.Printf("%v On Receive Part Data : %v", c.RemoteAddress, hex.EncodeToString(packdata[i]))
+			obj, err1 := c.P.Parse(packdata[i])
 		if err1 != nil {
 			log.Panicln(err1.Error())
 		}
@@ -58,7 +59,7 @@ func (trans *SvrHander808) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 		} else {
 			log.Println("Convert To Type Error.")
 		}
-
+		}
 	}
 	/*解析出实体*/
 	if c.IsConneted {

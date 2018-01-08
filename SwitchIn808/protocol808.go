@@ -49,7 +49,7 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 		}
 		if ibegin >= 0 && iEnd > 0 {
 			/*添加到data list */
-			append(packdata, data[ibegin:iEnd])
+			_ = append(packdata, data[ibegin:iEnd])
 			/*重置下标*/
 			ibegin, iEnd = -1, -1
 			/*退出分包 将剩余bytes写到leftbuffer 里面*/
