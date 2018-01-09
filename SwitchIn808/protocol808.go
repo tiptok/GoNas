@@ -55,17 +55,17 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 			ibegin, iEnd = -1, -1
 			continue
 		}
-			/*退出分包 将剩余bytes写到leftbuffer 里面*/
+		/*退出分包 将剩余bytes写到leftbuffer 里面*/
 		if ibegin >= 0 && i+1==len(data) {
-				if iEnd < len(data) {
-					leftdata = data[ibegin:]
-					_, err := c.WriteLeftData(leftdata)
-					if err != nil {
-						log.Println(err.Error())
-					}
+			if iEnd < len(data) {
+				leftdata = data[ibegin:]
+				_, err := c.WriteLeftData(leftdata)
+				if err != nil {
+					log.Println(err.Error())
 				}
-				break
 			}
+			break
+		}
 	}
 	/*未找到头标识 说明报文是非法数据*/
 	if ibegin < 0 && len(packdata) == 1 {
@@ -87,8 +87,6 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 	7d
 	7e100200010000000000000000007d
 	7e100300010000000000000000007d
-	7e100300010000000000000000007d7e1004   leftData :7e1004
-	7e100200010000000000000000007d7e100300010000000000000000007d 多包
 */
 func (p protocol808) Parse(packdata []byte) (obj interface{}, err error) {
 	defer func() {

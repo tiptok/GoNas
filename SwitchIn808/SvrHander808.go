@@ -66,7 +66,7 @@ func (trans *SvrHander808) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 	}
 	/*剩余bytes*/
 	if c.Leftbuf.Len()>0{
-		log.Printf("%v On Receive Part Data : %v", c.RemoteAddress, hex.EncodeToString(c.Leftbuf.Bytes()))
+		log.Printf("%v On Left Data : %v", c.RemoteAddress, hex.EncodeToString(c.Leftbuf.Bytes()))
 	}
 	/*解析出实体*/
 	if c.IsConneted {
