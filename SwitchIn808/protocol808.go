@@ -37,7 +37,7 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 	}
 	ibegin := -1
 	iEnd := -1
-	packdata = make([][]byte, 1)
+	packdata = make([][]byte,1)
 	for i := 0; i < len(data); i++ {
 		log.Printf("Index:%x  %x %t", i, data[i], data[i] == 0x7e)
 		if data[i] == 0x7e {
@@ -49,13 +49,16 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 		}
 		if ibegin >= 0 && iEnd > 0 {
 			/*添加到data list */
-			_ = append(packdata, data[ibegin:iEnd])
+			packdata = append(packdata, data[ibegin:iEnd])
+			//
 			/*重置下标*/
 			ibegin, iEnd = -1, -1
+			continue
+		}
 			/*退出分包 将剩余bytes写到leftbuffer 里面*/
-			if i >= len(data) {
+		if ibegin >= 0 && i+1==len(data) {
 				if iEnd < len(data) {
-					leftdata = data[iEnd:]
+					leftdata = data[ibegin:]
 					_, err := c.WriteLeftData(leftdata)
 					if err != nil {
 						log.Println(err.Error())
@@ -63,10 +66,9 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 				}
 				break
 			}
-		}
 	}
 	/*未找到头标识 说明报文是非法数据*/
-	if ibegin < 0 {
+	if ibegin < 0 && len(packdata) == 1 {
 		err = errors.New("tcp数据格式不对")
 	}
 	return packdata, leftdata, err
@@ -85,6 +87,8 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 	7d
 	7e100200010000000000000000007d
 	7e100300010000000000000000007d
+	7e100300010000000000000000007d7e1004   leftData :7e1004
+	7e100200010000000000000000007d7e100300010000000000000000007d 多包
 */
 func (p protocol808) Parse(packdata []byte) (obj interface{}, err error) {
 	defer func() {
