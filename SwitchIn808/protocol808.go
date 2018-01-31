@@ -87,6 +87,8 @@ func (p protocol808) ParseMsg(data []byte, c *conn.Connector) (packdata [][]byte
 	7d
 	7e100200010000000000000000007d
 	7e100300010000000000000000007d
+	7e100300010000000000000000007d7e1004   leftData :7e1004
+	7e100200010000000000000000007d7e100300010000000000000000007d 多包
 */
 func (p protocol808) Parse(packdata []byte) (obj interface{}, err error) {
 	defer func() {
