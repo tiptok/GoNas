@@ -1,23 +1,9 @@
 package SwitchIn808
 
-import (
-	"github.com/tiptok/gotransfer/conn"
-)
-
-/*统一Server接口*/
-type TcpServer interface {
-	Start() bool
-	Stop() bool
-}
-
-//func ()xx
-
-type TcpServerBase struct {
-	Server conn.TcpServer
-}
+import "github.com/tiptok/gotransfer/conn"
 
 type Tcp808Server struct {
-	TcpServerBase
+	conn.TcpServerBase
 }
 
 func (svr *Tcp808Server) Start() bool {

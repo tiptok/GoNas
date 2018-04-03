@@ -4,6 +4,7 @@ import (
 	"runtime"
 
 	"github.com/tiptok/GoNas/core"
+	"github.com/tiptok/GoNas/global"
 )
 
 var host core.Host
@@ -15,7 +16,7 @@ func main() {
 	}()
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	host = core.Host{}
-	host.Start("JTB808")
+	host.Start(global.Param.Protocol)
 	//等待退出
 	<-exit
 }

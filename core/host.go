@@ -4,11 +4,13 @@ import (
 	"log"
 
 	"github.com/tiptok/GoNas/SwitchIn808"
+	"github.com/tiptok/GoNas/SwitchIn809"
 	"github.com/tiptok/GoNas/global"
+	"github.com/tiptok/gotransfer/conn"
 )
 
 type Host struct {
-	NasServer SwitchIn808.TcpServer
+	NasServer conn.ITcpServer
 	//上行处理
 	//分析处理
 	//下行处理
@@ -21,6 +23,8 @@ func (h *Host) Start(protocol string) {
 	switch protocol {
 	case "JTB808":
 		h.NasServer = &SwitchIn808.Tcp808Server{}
+	case "JTB809":
+		h.NasServer = &SwitchIn809.Tcp809Server{}
 	}
 	global.UpHandler = &Up808Data{}
 	if h.NasServer != nil {
