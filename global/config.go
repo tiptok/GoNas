@@ -1,6 +1,7 @@
 package global
 
 import "github.com/astaxie/beego/config"
+import "log"
 
 var Param *Params
 
@@ -21,20 +22,20 @@ type Params struct {
 
 func init() {
 	Param = &Params{}
-	Param.LoadConfig("ini", "param.cnf")
+	Param.LoadConfig("ini", "param.conf")
 }
 
 //LoadConfig load config
 func (p *Params) LoadConfig(pType string, fName string) *Params {
 	defer func() {
 		if p := recover(); p != nil {
-			Error("LoadConfig 读取配置异常r! p: %v", p)
+			log.Printf("LoadConfig 读取配置异常r! p: %v", p)
 			//debug.PrintStack()
 		}
 	}()
 	con, err := config.NewConfig(pType, fName)
 	if err != nil {
-		Error("LoadConfig 加载配置异常", err)
+		log.Printf("LoadConfig 加载配置异常 e: %v", err)
 	}
 	p.Protocol = con.String("Protocol")
 	p.ServerPort, _ = con.Int("ServerPort")
@@ -44,5 +45,6 @@ func (p *Params) LoadConfig(pType string, fName string) *Params {
 	p.IA1, _ = con.Int("IA1")
 	p.IC1, _ = con.Int("IC1")
 	p.AccessCode = con.Strings("AccessCode")
+	log.Printf("Load Config:%v\n", *p)
 	return p
 }

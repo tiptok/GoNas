@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/tiptok/GoNas/global"
+	"github.com/tiptok/GoNas/model"
 	"github.com/tiptok/gotransfer/conn"
 )
 
@@ -27,7 +28,7 @@ func (trans *SvrHander809) OnClose(c *conn.Connector) {
 
 //接收事件
 func (trans *SvrHander809) OnReceive(c *conn.Connector, d conn.TcpData) bool {
-	log.Printf("%v On Receive Data : %v", c.RemoteAddress, hex.EncodeToString(d.Bytes()))
+	global.Debug("%v On Receive Data : %v", c.RemoteAddress, hex.EncodeToString(d.Bytes()))
 	defer func() {
 		if p := recover(); p != nil {
 			log.Printf("panic recover! p: %v", p)
@@ -36,15 +37,17 @@ func (trans *SvrHander809) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 	}()
 	obj, err := c.ParseToEntity(d.Bytes())
 	if err != nil {
-		log.Panicln(err.Error())
+		global.Error(err.Error())
+		return false
 	}
-	// if def, ok := obj.(conn.DefaultTcpData); ok {
-	// 	log.Printf("收到MsgTypeId：%v  Begin: %v  End: %v", def.MsgTypeId, def.BEGIN, def.END)
-	// 	/*添加上行*/
-	// 	global.UpHandler.UpData(def)
-	// } else {
-	// 	log.Println("Convert To Type Error.")
+	// if obj != nil {
+	// 	log.Println("Receive Entity:", obj)
 	// }
+	if def, ok := obj.(model.IEntity); ok {
+		entity := def.GetEntityBase()
+		//log.Printf("MsgId:%v  MsgSN:%v AccessCode:%v", entity.MsgId, entity.MsgSN, entity.AccessCode)
+		global.Debug("MsgId:%v  MsgSN:%v AccessCode:%v", entity.MsgId, entity.MsgSN, entity.AccessCode)
+	}
 	global.UpHandler.UpData(obj.(interface{}))
 	return true
 }
