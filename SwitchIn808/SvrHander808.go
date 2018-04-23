@@ -5,7 +5,6 @@ import (
 	"log"
 	"runtime/debug"
 
-	"github.com/tiptok/GoNas/global"
 	"github.com/tiptok/gotransfer/conn"
 )
 
@@ -46,10 +45,10 @@ func (trans *SvrHander808) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 	}
 	/*解析完整包*/
 	if packdata != nil {
-		for i:=0;i<len(packdata);i++{
-			if len(packdata[i])<=0{
+		for i := 0; i < len(packdata); i++ {
+			if len(packdata[i]) <= 0 {
 				continue
-			}	
+			}
 			log.Printf("%v On Receive Part Data : %v", c.RemoteAddress, hex.EncodeToString(packdata[i]))
 			obj, err1 := c.P.Parse(packdata[i])
 			if err1 != nil {
@@ -58,14 +57,14 @@ func (trans *SvrHander808) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 			if def, ok := obj.(conn.DefaultTcpData); ok {
 				log.Printf("收到MsgTypeId：%v  Begin: %v  End: %v", def.MsgTypeId, def.BEGIN, def.END)
 				/*添加上行*/
-				global.UpHandler.UpData(def)
+				//global.UpHandler.UpData(def)
 			} else {
 				log.Println("Convert To Type Error.")
 			}
 		}
 	}
 	/*剩余bytes*/
-	if c.Leftbuf.Len()>0{
+	if c.Leftbuf.Len() > 0 {
 		log.Printf("%v On Left Data : %v", c.RemoteAddress, hex.EncodeToString(c.Leftbuf.Bytes()))
 	}
 	/*解析出实体*/

@@ -8,8 +8,10 @@ var Param *Params
 //Params config item
 type Params struct {
 	/*******基本参数*******/
-	Protocol   string //协议类型 :JTB808 JTB809
-	ServerPort int    //服务监听端口
+	Protocol     string //协议类型 :JTB808 JTB809
+	ServerPort   int    //服务监听端口
+	DBConnString string //数据库连接串
+	TrackDBName  string //轨迹库名称
 
 	/*******809配置项******/
 	IsEncrypt  bool
@@ -18,6 +20,7 @@ type Params struct {
 	IA1        int
 	IC1        int
 	AccessCode []string
+	VerifyCode int
 }
 
 func init() {
@@ -39,12 +42,15 @@ func (p *Params) LoadConfig(pType string, fName string) *Params {
 	}
 	p.Protocol = con.String("Protocol")
 	p.ServerPort, _ = con.Int("ServerPort")
+	p.DBConnString = con.String("DBConnString")
+	p.TrackDBName = con.String("TrackDBName")
 	p.IsEncrypt, _ = con.Bool("IsEncrypt")
 	p.Key, _ = con.Int("Key")
 	p.M1, _ = con.Int("M1")
 	p.IA1, _ = con.Int("IA1")
 	p.IC1, _ = con.Int("IC1")
 	p.AccessCode = con.Strings("AccessCode")
+	p.VerifyCode, _ = con.Int("VerifyCode")
 	log.Printf("Load Config:%v\n", *p)
 	return p
 }

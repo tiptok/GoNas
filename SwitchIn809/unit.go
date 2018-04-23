@@ -60,6 +60,6 @@ func Byte809Enscape(value []byte, startIndex int, length int) []byte {
 			buf.WriteByte(value[i])
 		}
 	}
-	buf.WriteByte(0x5b)
+	buf.WriteByte(0x5d)
 	return buf.Bytes()
 }

@@ -7,6 +7,10 @@ type UP_CONNECT_RSP struct {
 	Verify_Code int32 //校验主链路登录请求
 }
 
+func (e *UP_CONNECT_RSP) GetMsgId() interface{} {
+	return J主链路登录应答
+}
+
 //IsValid valid UP_CONNECT_RSP
 func (e *UP_CONNECT_RSP) IsValid(args ...interface{}) (isLogin bool, errMsg string) {
 	isLogin = false

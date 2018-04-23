@@ -4,12 +4,16 @@ import (
 	"encoding/hex"
 	"log"
 
+	"strings"
+
 	"github.com/tiptok/GoNas/global"
 	"github.com/tiptok/GoNas/model"
+	"github.com/tiptok/gotransfer/comm"
 	"github.com/tiptok/gotransfer/conn"
 )
 
 type SvrHander809 struct {
+	conn.TcpServerBase
 }
 
 //连接事件
@@ -28,10 +32,11 @@ func (trans *SvrHander809) OnClose(c *conn.Connector) {
 
 //接收事件
 func (trans *SvrHander809) OnReceive(c *conn.Connector, d conn.TcpData) bool {
+	var bUpData bool = true
 	global.Debug("%v On Receive Data : %v", c.RemoteAddress, hex.EncodeToString(d.Bytes()))
 	defer func() {
 		if p := recover(); p != nil {
-			log.Printf("panic recover! p: %v", p)
+			log.Printf("SvrHander809 OnReceive panic recover! p: %v", p)
 			//debug.PrintStack()
 		}
 	}()
@@ -40,14 +45,49 @@ func (trans *SvrHander809) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 		global.Error(err.Error())
 		return false
 	}
-	// if obj != nil {
-	// 	log.Println("Receive Entity:", obj)
-	// }
+	var rspEntity model.IEntity //应答实体
 	if def, ok := obj.(model.IEntity); ok {
 		entity := def.GetEntityBase()
-		//log.Printf("MsgId:%v  MsgSN:%v AccessCode:%v", entity.MsgId, entity.MsgSN, entity.AccessCode)
-		global.Debug("MsgId:%v  MsgSN:%v AccessCode:%v", entity.MsgId, entity.MsgSN, entity.AccessCode)
+		cmdcode := entity.MsgId.(int16)
+		if entity.SubMsgId != nil && entity.SubMsgId.(int16) != 0 {
+			cmdcode = entity.SubMsgId.(int16)
+		}
+		global.Debug("MsgId:%X  MsgSN:%d AccessCode:%v", cmdcode, entity.MsgSN, entity.AccessCode)
+		switch cmdcode {
+		case model.J主链路登录请求:
+			login := obj.(*model.UP_CONNECT_REQ)
+			//login.AccessCode global.Param.AccessCode && login.USERID="" && login.PASSWORD==""
+			if strings.Compare(login.AccessCode, "12345678") == 0 {
+				rspEntity = &model.UP_CONNECT_RSP{EntityBase: model.EntityBase{MsgId: model.J主链路登录应答}, Result: 0, Verify_Code: int32(global.Param.VerifyCode)}
+			}
+			// case model.主链路注销请求:
+		case model.J主链路连接保持请求:
+		case model.J实时上传车辆定位信息:
+			bUpData = false
+			global.UpHandler.UpData((obj.(*model.UP_EXG_MSG_REAL_LOCATION)).GetConvEntity())
+			//global.Debug("接收到实体%v", obj)
+		default:
+		}
+		if rspEntity != nil {
+			base := rspEntity.GetEntityBase()
+			base.AccessCode = entity.AccessCode
+		}
+		//上行
+		if bUpData {
+			global.UpHandler.UpData(def)
+		}
+	} else {
+		global.Debug("接收到实体%v", obj)
 	}
-	global.UpHandler.UpData(obj.(interface{}))
+	//发送应答
+	if rspEntity != nil {
+		//IEntity
+		data, err := conn.SendEntity(rspEntity, c)
+		if err != nil {
+			global.Error("SvrHander Send Entity Error:%v", err)
+		} else {
+			global.Debug("SvrHander Send Data:%s", comm.BinaryHelper.ToBCDString(data, 0, int32(len(data))))
+		}
+	}
 	return true
 }
