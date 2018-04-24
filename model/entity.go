@@ -5,6 +5,7 @@ import "time"
 type IEntity interface {
 	GetMsgId() interface{}
 	GetEntityBase() *EntityBase
+	GetDBSql() string
 }
 type EntityBase struct {
 	MsgId interface{}

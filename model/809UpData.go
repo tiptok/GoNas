@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/tiptok/gotransfer/comm"
 )
 
 //1001 主链路登录请求
@@ -76,12 +78,13 @@ type UP_EXG_MSG_REAL_LOCATION struct {
 
 func (e *UP_EXG_MSG_REAL_LOCATION) GetConvEntity() IEntity {
 	termPos := &TermPosition{
+		Id:         comm.BinaryHelper.UniqueId(), //NewObjectId(),
 		SimNum:     "18860183011",
 		GpsTime:    e.GNSS_DATA.GPSTIME,
 		AlarmFlag:  int64(e.GNSS_DATA.ALARM),
 		StateFlag:  int64(e.GNSS_DATA.STATE),
-		Lon:        float32(e.GNSS_DATA.LON / 1000000.0),
-		Lat:        float32(e.GNSS_DATA.LAT / 1000000.0),
+		Lon:        float32(e.GNSS_DATA.LON) / 1000000.0,
+		Lat:        float32(e.GNSS_DATA.LAT) / 1000000.0,
 		Speed:      float32(e.GNSS_DATA.VEC1),
 		ADRSpeed:   float32(e.GNSS_DATA.VEC2),
 		Mileage:    float32(e.GNSS_DATA.VEC3),

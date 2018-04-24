@@ -8,7 +8,7 @@ import (
 
 type TermPosition struct {
 	EntityBase
-
+	Id string
 	/*基本信息*/
 	SimNum       string    //终端手机号码
 	GpsTime      time.Time //卫星时间:精确到秒
@@ -65,7 +65,8 @@ func (e *TermPosition) GetDBSql() string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("EXEC spNas_AddTrack ")
 	buf.WriteString(fmt.Sprintf("'%v',", e.SimNum))
-	buf.WriteString(fmt.Sprintf("'%v',", e.GpsTime.Format("2006-01-02 03:04:05")))
+	buf.WriteString(fmt.Sprintf("'%v',", time.Now().Format("2006-01-02 03:04:05"))) //e.GpsTime.Format("2006-01-02 03:04:05")
+	buf.WriteString(fmt.Sprintf("'%v',", e.ReceTime.Format("2006-01-02 03:04:05"))) //e.GpsTime.Format("2006-01-02 03:04:05")
 	buf.WriteString(fmt.Sprintf("%v,", e.AlarmFlag))
 	buf.WriteString(fmt.Sprintf("%v,", e.StateFlag))
 	buf.WriteString(fmt.Sprintf("%v,", e.ExStateFlag))
@@ -76,5 +77,31 @@ func (e *TermPosition) GetDBSql() string {
 	buf.WriteString(fmt.Sprintf("%v,", e.Direction))
 	buf.WriteString(fmt.Sprintf("%v,", e.Mileage))
 
+	buf.WriteString(fmt.Sprintf("%v,", e.Reserved))
+	buf.WriteString(fmt.Sprintf("%v,", e.ResidualFuel))
+	buf.WriteString(fmt.Sprintf("%v,", e.ADRSpeed))
+	buf.WriteString(fmt.Sprintf("%v,", 0))
+
+	buf.WriteString(fmt.Sprintf("%v,", e.SpeedingPosType))
+	buf.WriteString(fmt.Sprintf("%v,", e.SpeedingPosId))
+	buf.WriteString(fmt.Sprintf("%v,", e.InOutPosType))
+	buf.WriteString(fmt.Sprintf("%v,", e.InOutPosId))
+	buf.WriteString(fmt.Sprintf("%v,", e.InOutFlag))
+	buf.WriteString(fmt.Sprintf("%v,", e.DrivingPathSectionId))
+
+	buf.WriteString(fmt.Sprintf("%v,", e.DrivingDuration))
+	buf.WriteString(fmt.Sprintf("%v,", e.DrivingFlag))
+	buf.WriteString(fmt.Sprintf("%v,", e.StarCount))
+	buf.WriteString(fmt.Sprintf("%v,", e.WirelessSignal))
+	buf.WriteString(fmt.Sprintf("%v,", e.Analogue))
+	buf.WriteString(fmt.Sprintf("'%v',", e.AdditionData))
+	buf.WriteString(fmt.Sprintf("%v,", e.LimitSpeed))
+	buf.WriteString(fmt.Sprintf("'%v',", e.Id))
+	buf.WriteString(fmt.Sprintf("%v,", e.MediaType))
+	buf.WriteString(fmt.Sprintf("%v,", e.MediaFormatCode))
+	buf.WriteString(fmt.Sprintf("%v,", e.MediaEventCode))
+	buf.WriteString(fmt.Sprintf("%v", e.MediaChannelId))
+	//buf.WriteString(fmt.Sprintf("'%v'", ""))
+	buf.WriteString(";")
 	return buf.String()
 }

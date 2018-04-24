@@ -55,6 +55,7 @@ func (db *DBReceive) OnDBTaskWork() {
 				taskBuffer.WriteString(task.Sql)
 				taskBuffer.WriteString("\n")
 			}
+			//global.Debug("执行sql:%s",taskBuffer.String())
 			db.ExecDBTask(taskBuffer) //执行sql
 		default:
 			time.Sleep(db.SleepInterval)
@@ -67,7 +68,7 @@ func (db *DBReceive) OnDBErrTaskWork() {
 		select {
 		case task, isClose := <-db.Rec:
 			if !isClose {
-				global.Debug("%v", task)
+				global.Debug("DB Err Task %v", task)
 			}
 		default:
 			time.Sleep(db.SleepInterval)
@@ -85,7 +86,7 @@ func (db *DBReceive) ExecDBTask(buf *bytes.Buffer) {
 
 	_, err := global.DBInstance().Exec(buf.String())
 	if err != nil {
-		global.Error("ExecDBTask Error:%v", err)
+		global.Error("ExecDBTask Error:%v%v", err, buf.String())
 		db.Err <- buf.String()
 	}
 }
