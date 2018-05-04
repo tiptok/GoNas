@@ -15,3 +15,6 @@ var DownHandler IDownData
 type IDownData interface {
 	DownData(rcv model.IEntity)
 }
+
+//企业信息缓存
+var PInfoCahce *CacheBase

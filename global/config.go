@@ -12,6 +12,7 @@ type Params struct {
 	ServerPort   int    //服务监听端口
 	DBConnString string //数据库连接串
 	TrackDBName  string //轨迹库名称
+	CachePath    string //文件缓存路径
 
 	/*******809配置项******/
 	IsEncrypt  bool
@@ -44,6 +45,7 @@ func (p *Params) LoadConfig(pType string, fName string) *Params {
 	p.ServerPort, _ = con.Int("ServerPort")
 	p.DBConnString = con.String("DBConnString")
 	p.TrackDBName = con.String("TrackDBName")
+	p.CachePath = con.String("CachePath")
 	p.IsEncrypt, _ = con.Bool("IsEncrypt")
 	p.Key, _ = con.Int("Key")
 	p.M1, _ = con.Int("M1")

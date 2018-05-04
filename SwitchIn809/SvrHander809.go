@@ -6,6 +6,8 @@ import (
 
 	"strings"
 
+	"fmt"
+
 	"github.com/tiptok/GoNas/global"
 	"github.com/tiptok/GoNas/model"
 	"github.com/tiptok/gotransfer/comm"
@@ -56,9 +58,12 @@ func (trans *SvrHander809) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 		switch cmdcode {
 		case model.J主链路登录请求:
 			login := obj.(*model.UP_CONNECT_REQ)
-			//login.AccessCode global.Param.AccessCode && login.USERID="" && login.PASSWORD==""
-			if strings.Compare(login.AccessCode, "12345678") == 0 {
+			result, errMsg := chkPlatInfo(login, c.RemoteAddress)
+			if result {
+				global.Info("主链路登录结果:%v %v", result, login.String())
 				rspEntity = &model.UP_CONNECT_RSP{EntityBase: model.EntityBase{MsgId: model.J主链路登录应答}, Result: 0, Verify_Code: int32(global.Param.VerifyCode)}
+			} else {
+				global.Info("主链路登录失败 %v 错误:%v", login.String(), errMsg)
 			}
 			// case model.主链路注销请求:
 		case model.J主链路连接保持请求:
@@ -90,4 +95,25 @@ func (trans *SvrHander809) OnReceive(c *conn.Connector, d conn.TcpData) bool {
 		}
 	}
 	return true
+}
+
+//检查主链路登录信息
+func chkPlatInfo(req *model.UP_CONNECT_REQ, ip string) (result bool, errMsg string) {
+	obj := global.PInfoCahce.GetCache(req.AccessCode)
+	if obj != nil {
+		pCache := obj.(*global.MSPlatformInfo)
+		if strings.Compare(pCache.UserId, string(req.USERID)) != 0 {
+			result = false
+			errMsg = fmt.Sprintf("用户校验失败,正确用户:%v", pCache.UserId)
+		} else if strings.Compare(pCache.Password, req.PASSWORD) != 0 {
+			result = false
+			errMsg = fmt.Sprintf("密码校验失败,正确密码:%v", pCache.Password)
+		} else if strings.Compare(pCache.CompanyIP, ip) != 0 {
+			result = false
+			errMsg = fmt.Sprintf("IP未认证,当前认证Ip:%v", pCache.CompanyIP)
+		} else {
+			result = true
+		}
+	}
+	return result, errMsg
 }

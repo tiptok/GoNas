@@ -11,6 +11,7 @@ import (
 
 type Host struct {
 	NasServer conn.ITcpServer
+	CacheMana global.CacheManage
 	//上行处理
 	//分析处理
 	//下行处理
@@ -20,6 +21,11 @@ type Host struct {
 
 func (h *Host) Start(protocol string) {
 	var init bool = false
+
+	//加载缓存管理
+	h.CacheMana = global.CacheManage{}
+	init = h.CacheMana.Init()
+
 	switch protocol {
 	case "JTB808":
 		h.NasServer = &SwitchIn808.Tcp808Server{}

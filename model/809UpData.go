@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 
+	"fmt"
+
 	"github.com/tiptok/gotransfer/comm"
 )
 
@@ -14,6 +16,10 @@ type UP_CONNECT_REQ struct {
 	PASSWORD       string //用户密码
 	DOWN_LINK_IP   string //从链路IP
 	DOWN_LINK_PORT uint32 //从链路端口
+}
+
+func (e UP_CONNECT_REQ) String() string {
+	return fmt.Sprintf("用户ID:%v 用户密码：%v 从链路IP:%v 从链路端口：%v", e.USERID, e.PASSWORD, e.DOWN_LINK_IP, e.DOWN_LINK_PORT)
 }
 
 //1005 主链路连接保持请求
