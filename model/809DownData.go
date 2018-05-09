@@ -72,6 +72,11 @@ type DOWN_DISCONNECT_RSP struct {
 	EntityBase
 }
 
+//DOWN_LINKTEST_REQ 0x9005 从链路保持连接请求
+type DOWN_LINKTEST_REQ struct {
+	EntityBase
+}
+
 //DOWN_LINKTEST_RSP 0x9006 从链路连接保持请求应答
 type DOWN_LINKTEST_RSP struct {
 	EntityBase

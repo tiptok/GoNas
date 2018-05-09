@@ -100,3 +100,9 @@ func (e *UP_EXG_MSG_REAL_LOCATION) GetConvEntity() IEntity {
 	}
 	return termPos
 }
+
+//UP_EXG_MSG_HISTORY_LOCATION 车辆定位信息自动补报
+type UP_EXG_MSG_HISTORY_LOCATION struct {
+	UP_EXG_MSG
+	GNSS_DATA_LIST []LocationInfoItem
+}

@@ -43,3 +43,8 @@ func (cache *CacheBase) RemoveCache(key string) error {
 	cache.CacheValue.Delete(key)
 	return nil
 }
+
+func (cache *CacheBase) ContaninKey(key string) bool {
+	_, result := cache.CacheValue.GetOk(key)
+	return result
+}

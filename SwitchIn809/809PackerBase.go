@@ -20,3 +20,23 @@ func (p *JTB809PackerBase) J1002(obj interface{}) (packdata []byte, err error) {
 	buf.Write(comm.BinaryHelper.Int32ToBytes(int(inEntity.Verify_Code)))
 	return buf.Bytes(), nil
 }
+
+/*
+   J9001 从链路连接请求
+*/
+func (p *JTB809PackerBase) J9001(obj interface{}) (packdata []byte, err error) {
+	buf := bytes.NewBuffer(nil)
+	inEntity := obj.(*model.DOWN_CONNECT_REQ)
+	buf.Write(comm.BinaryHelper.Int32ToBytes(int(inEntity.VERIFY_CODE)))
+	return buf.Bytes(), nil
+}
+
+/*
+   J9001 从链路连接请求
+*/
+func (p *JTB809PackerBase) J9005(obj interface{}) (packdata []byte, err error) {
+	buf := bytes.NewBuffer(nil)
+	//inEntity := obj.(*model.DOWN_LINKTEST_REQ)
+	//buf.Write(comm.BinaryHelper.Int32ToBytes(int(inEntity.VERIFY_CODE)))
+	return buf.Bytes(), nil
+}

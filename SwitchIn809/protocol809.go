@@ -66,7 +66,7 @@ func (p protocol809) Packet(obj interface{}) (packdata []byte, err error) {
 	if def, ok := obj.(model.IEntity); ok {
 		entity := def.GetEntityBase()
 		sMethodName := fmt.Sprintf("J%X", entity.MsgId.(int))
-		global.Debug("InvokeFunc:%s", sMethodName)
+		//global.Debug("InvokeFunc:%s", sMethodName)
 		value, err := comm.ParseHelper.InvokeFunc(&JTB809PackerBase{}, sMethodName, obj)
 		if err == nil {
 			packdata = (value[0].Interface()).([]byte)
@@ -119,7 +119,7 @@ func (p protocol809) Parse(packdata []byte) (obj interface{}, err error) {
 	//数据头
 	msgBodyLenght := comm.BinaryHelper.ToInt32(data, 0) - 26
 	h.MsgSN = int(comm.BinaryHelper.ToInt32(data, 4))
-	h.MsgId = comm.BinaryHelper.ToInt16(data, 8)
+	h.MsgId = comm.BinaryHelper.ToUInt16(data, 8)
 	h.AccessCode = fmt.Sprintf("%d", comm.BinaryHelper.ToInt32(data, 10))
 
 	isEncrypt := data[17] == 0

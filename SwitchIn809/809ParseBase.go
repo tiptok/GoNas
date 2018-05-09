@@ -2,9 +2,8 @@ package SwitchIn809
 
 import (
 	"fmt"
-	"time"
-
 	"strings"
+	"time"
 
 	"github.com/axgle/mahonia"
 	"github.com/tiptok/GoNas/model"
@@ -24,8 +23,8 @@ func (p *JTB809ParseBase) J1001(msgBody []byte, h model.EntityBase) interface{} 
 	outEntity.SetEntity(h)
 	outEntity.USERID = uint32(comm.BinaryHelper.ToInt32(msgBody, 0)) //应答ID
 	outEntity.PASSWORD = comm.BinaryHelper.ToASCIIString(msgBody, 4, 8)
-	outEntity.DOWN_LINK_IP = comm.BinaryHelper.ToASCIIString(msgBody, 12, 32) //结果
-	outEntity.DOWN_LINK_PORT = uint32(comm.BinaryHelper.ToInt16(msgBody, 44)) //应答ID
+	outEntity.DOWN_LINK_IP = strings.Trim(comm.BinaryHelper.ToASCIIString(msgBody, 12, 32), string([]byte{0x00})) //结果
+	outEntity.DOWN_LINK_PORT = uint32(comm.BinaryHelper.ToInt16(msgBody, 44))                                     //应答ID
 
 	/*是否需要应答*/
 	// outEntity.IsNeedRsp = false
@@ -45,6 +44,17 @@ func (p *JTB809ParseBase) J1002(msgBody []byte, h model.EntityBase) interface{} 
 	return outEntity
 }
 
+//J9002 从链路登录应答
+func (p *JTB809ParseBase) J9002(msgBody []byte, h model.EntityBase) interface{} {
+	outEntity := &model.DOWN_CONNECT_RSP{}
+	outEntity.SetEntity(h)
+	outEntity.Result = msgBody[0]
+	/*是否需要应答*/
+	// outEntity.IsNeedRsp = false
+	// outEntity.DownRspEntity = nil
+	return outEntity
+}
+
 //J1005 0x1005  主链路保持连接请求
 func (p *JTB809ParseBase) J1005(msgBody []byte, h model.EntityBase) interface{} {
 	outEntity := &model.UP_LINKTEST_REQ{}
@@ -57,6 +67,13 @@ func (p *JTB809ParseBase) J1005(msgBody []byte, h model.EntityBase) interface{} 
 	return outEntity
 }
 
+//J9006 从链路登录应答
+func (p *JTB809ParseBase) J9006(msgBody []byte, h model.EntityBase) interface{} {
+	outEntity := &model.DOWN_LINKTEST_RSP{}
+	outEntity.SetEntity(h)
+	return outEntity
+}
+
 //J1200 主链路动态信息交换
 func (p *JTB809ParseBase) J1200(msgBody []byte, h model.EntityBase) interface{} {
 	outEntity := model.UP_EXG_MSG{}
@@ -65,12 +82,14 @@ func (p *JTB809ParseBase) J1200(msgBody []byte, h model.EntityBase) interface{} 
 	outEntity.Vehicle_No = strings.Trim(comm.BinaryHelper.ToASCIIString(msgBody, 0, 21), string([]byte{0x00})) // strings.Trim(comm.BinaryHelper.ToASCIIString(msgBody, 0, 21), " ")
 	outEntity.Vehicle_No = enc.ConvertString(outEntity.Vehicle_No)
 	outEntity.Vehicle_Color = msgBody[21]
-	outEntity.SubMsgId = comm.BinaryHelper.ToInt16(msgBody, 22)
-	switch outEntity.SubMsgId.(int16) {
+	outEntity.SubMsgId = comm.BinaryHelper.ToUInt16(msgBody, 22)
+	switch outEntity.SubMsgId.(uint16) {
 	case 0x1202:
 		return J1202(msgBody, outEntity)
+	case 0x1203:
+		return J1203(msgBody, outEntity)
 	default:
-		panic(fmt.Sprintf("未找到对应方法:%v", outEntity.MsgId))
+		panic(fmt.Sprintf("未找到对应方法:%v", outEntity.SubMsgId))
 	}
 	return nil
 }
@@ -79,6 +98,18 @@ func J1202(msgBody []byte, h model.UP_EXG_MSG) interface{} {
 		UP_EXG_MSG: h,
 	}
 	outEntity.GNSS_DATA = GetGetLoactionInfo(msgBody, 28)
+	return outEntity
+}
+func J1203(msgBody []byte, h model.UP_EXG_MSG) interface{} {
+	outEntity := &model.UP_EXG_MSG_HISTORY_LOCATION{
+		UP_EXG_MSG: h,
+	}
+	//iIndex := 29
+	posSize := int(msgBody[28])
+	outEntity.GNSS_DATA_LIST = make([]model.LocationInfoItem, posSize)
+	for i := 0; i < posSize; i++ {
+		outEntity.GNSS_DATA_LIST[i] = GetGetLoactionInfo(msgBody, int32(29+i*36))
+	}
 	return outEntity
 }
 
